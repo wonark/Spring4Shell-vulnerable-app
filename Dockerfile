@@ -1,17 +1,26 @@
-# Pin our tomcat version to something that has not been updated to remove the vulnerability
-# https://hub.docker.com/layers/tomcat/library/tomcat/9.0.59-jdk11/images/sha256-383a062a98c70924fb1b1da391a054021b6448f0aa48860ae02f786aa5d4e2ad?context=explore
-FROM lunasec/tomcat-9.0.59-jdk11
+##
+## Build
+##
+FROM maven:3.8.4-openjdk-11-slim AS build
+
+WORKDIR /helloworld/
+
+ADD pom.xml /helloworld
+RUN mvn dependency:go-offline
 
 ADD src/ /helloworld/src
-ADD pom.xml /helloworld
-
-#  Build spring app
-RUN apt update && apt install maven -y
-WORKDIR /helloworld/
 RUN mvn clean package
 
-#  Deploy to tomcat
-RUN mv target/helloworld.war /usr/local/tomcat/webapps/
+##
+## Run
+## Pin our tomcat version to something that has not been updated to remove the vulnerability
+FROM tomcat:9.0.59-jre11-openjdk-slim
 
+#  Deploy to tomcat
+COPY --from=build /helloworld/target/helloworld.war /usr/local/tomcat/webapps/
+
+#  Ability to debug tomcat
+ENV JPDA_OPTS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:8000"
 EXPOSE 8080
-CMD ["catalina.sh", "run"]
+EXPOSE 8000
+CMD ["catalina.sh", "jpda", "run"]

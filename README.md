@@ -7,7 +7,7 @@ Details: https://www.lunasec.io/docs/blog/spring-rce-vulnerabilities
 
 ## Run
 ```
-docker run -p 8080:8080 --rm ghcr.io/denniskniep/vulnerable-app-spring4shell:latest
+docker run -p 8080:8080 -p 8000:8000 --rm ghcr.io/denniskniep/vulnerable-app-spring4shell:latest
 ```
 
 App should now be available at http://localhost:8080/helloworld/greeting
@@ -16,7 +16,7 @@ App should now be available at http://localhost:8080/helloworld/greeting
 
 ## Build it yourself
 1. Clone the repository
-2. Build and run the container: `docker build . -t spring4shell && docker run -p 8080:8080 spring4shell`
+2. Build and run the container: `docker build . -t spring4shell && docker run --rm -p 8080:8080 -p 8000:8000 spring4shell`
 
 
 ## Credits
